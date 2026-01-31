@@ -1,0 +1,63 @@
+{
+  "name": "silverstripe-ls",
+  "displayName": "Silverstripe Language Support",
+  "description": "Silverstripe template language support with PHPActor integration",
+  "version": "0.1.0",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "silverstripe",
+    "template",
+    "ss",
+    "phpactor"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onLanguage:silverstripe"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "silverstripe",
+        "aliases": [
+          "Silverstripe",
+          "silverstripe",
+          "SS",
+          "ss"
+        ],
+        "extensions": [
+          ".ss"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "silverstripe",
+        "scopeName": "text.html.silverstripe",
+        "path": "./syntaxes/silverstripe.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.x",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vscode/vsce": "^2.22.0",
+    "eslint": "^8.50.0",
+    "typescript": "^5.3.0"
+  }
+}
