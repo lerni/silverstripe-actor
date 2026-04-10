@@ -1,9 +1,9 @@
 {
-  "name": "silverstripe-ls",
+  "name": "silverstripe-actor",
   "displayName": "Silverstripe Language Support",
   "description": "Silverstripe template language support with PHPActor integration",
   "version": "0.1.0",
-  "publisher": "local",
+  "publisher": "lerni",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -18,7 +18,7 @@
   ],
   "main": "./dist/extension.js",
   "activationEvents": [
-    "onLanguage:silverstripe"
+    "onLanguage:Silverstripe"
   ],
   "contributes": {
     "languages": [
@@ -40,9 +40,27 @@
       {
         "language": "silverstripe",
         "scopeName": "text.html.silverstripe",
-        "path": "./syntaxes/silverstripe.tmLanguage.json"
+        "path": "./syntaxes/silverstripe.tmLanguage.json",
+        "embeddedLanguages": {
+          "source.js": "javascript",
+          "source.css": "css"
+        }
+      },
+      {
+        "scopeName": "source.silverstripe.injection",
+        "path": "./syntaxes/silverstripe-injection.tmLanguage.json",
+        "injectTo": [
+          "text.html.silverstripe",
+          "source.css",
+          "source.js"
+        ]
       }
-    ]
+    ],
+    "configurationDefaults": {
+      "emmet.includeLanguages": {
+        "silverstripe": "html"
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

@@ -61,34 +61,47 @@ cd ss-lang-server
 npm install
 ```
 
-### Compile
+### Build Commands
 
+#### Compile Once
 ```bash
 npm run compile
 ```
+Compiles TypeScript to JavaScript in the `dist/` folder.
 
-### Watch Mode (auto-compile on save)
-
+#### Watch Mode (auto-compile on save)
 ```bash
 npm run watch
 ```
+Automatically recompiles when you save TypeScript files. Keep this running during development.
 
-### Debug
+#### Debug/Test the Extension
 
 1. Open the `ss-lang-server` folder in VSCode
-2. Press `F5` to launch Extension Development Host
+2. Press `F5` to launch Extension Development Host (runs the "Run Extension" launch config)
 3. Open a Silverstripe project in the new window
 4. Test with `.ss` files
 
-### Package for Distribution
+The `preLaunchTask` will automatically compile before debugging.
+
+#### Package for Distribution
 
 ```bash
-npm run package
-# Creates: silverstripe-ls-0.1.0.vsix
+npx vsce package --allow-missing-repository --skip-license
 ```
+Creates: `silverstripe-ls-0.1.0.vsix`
 
-### Install Packaged Extension
+**Note:** The `--allow-missing-repository` and `--skip-license` flags bypass warnings for local development. For production, add proper `repository` and `LICENSE` files to [package.json](package.json).
 
+#### Install Packaged Extension
+
+In VS Code:
+1. Press `Cmd/Ctrl + Shift + P`
+2. Type "Extensions: Install from VSIX"
+3. Select `silverstripe-ls-0.1.0.vsix`
+4. Reload VS Code when prompted
+
+Or via command line:
 ```bash
 code --install-extension silverstripe-ls-0.1.0.vsix
 ```
@@ -132,6 +145,83 @@ ss-lang-server/
     ├── launch.json                     # Debug config
     └── tasks.json                      # Build tasks
 ```
+
+## Customizing Syntax Highlighting
+
+The extension provides rich syntax highlighting for Silverstripe templates using TextMate scopes. You can customize the colors to match your preferred theme.
+
+### Inspecting Scopes
+
+1. Open any `.ss` file
+2. Press `Cmd/Ctrl + Shift + P` → "Developer: Inspect Editor Tokens and Scopes"
+3. Click on any Silverstripe syntax element to see its scope
+
+### Example Customizations
+
+Add to your VSCode `settings.json` (Preferences → Settings → `{}` icon):
+
+```jsonc
+"editor.tokenColorCustomizations": {
+    "textMateRules": [
+        {
+            // <% %> brackets
+            "scope": "punctuation.definition.silverstripe",
+            "settings": {
+                "foreground": "#30afae"
+            }
+        },
+        {
+            // Keywords: if, loop, with, include, etc.
+            "scope": "keyword.silverstripe",
+            "settings": {
+                "foreground": "#559ad1"
+            }
+        },
+        {
+            // Control structure names: end_if, end_loop
+            "scope": "entity.name.type.silverstripe",
+            "settings": {
+                "foreground": "#C695C6",
+                "fontStyle": "italic"
+            }
+        },
+        {
+            // Variables: $Title, $Content
+            "scope": "entity.name.silverstripe variable.silverstripe",
+            "settings": {
+                "foreground": "#f6ac81"
+            }
+        },
+        {
+            // Method calls: .Fill(), .URL
+            "scope": "entity.name.function.silverstripe",
+            "settings": {
+                "foreground": "#dcc665"
+            }
+        },
+        {
+            // Comments: <%-- comment --%>
+            "scope": "comment.block.silverstripe",
+            "settings": {
+                "foreground": "#9E9E9E",
+                "fontStyle": "italic"
+            }
+        }
+    ]
+}
+```
+
+### Available Scopes
+
+- `punctuation.definition.silverstripe` - `<%` and `%>` delimiters
+- `keyword.silverstripe` - Control keywords (`if`, `loop`, `include`, etc.)
+- `entity.name.type.silverstripe` - Type names and end tags
+- `entity.name.silverstripe` - Variable names
+- `entity.name.function.silverstripe` - Method calls
+- `comment.block.silverstripe` - Template comments
+- `string.quoted.double.silverstripe` - Double-quoted strings
+- `string.quoted.single.silverstripe` - Single-quoted strings
+- `punctuation.separator.silverstripe` - Commas and separators
 
 ## Using in Multiple Projects
 

@@ -7,25 +7,24 @@ import * as fs from 'fs';
  * Example: <% include MyTemplate %> -> jump to MyTemplate.ss
  */
 export class TemplateDefinitionProvider implements vscode.DefinitionProvider {
-    
+
     public provideDefinition(
         document: vscode.TextDocument,
         position: vscode.Position,
         token: vscode.CancellationToken
     ): vscode.ProviderResult<vscode.Definition> {
-        
         const range = document.getWordRangeAtPosition(
             position,
             /include\s+[\w\/\\]+/
         );
-        
+
         if (!range) {
             return null;
         }
 
         const text = document.getText(range);
         const match = text.match(/include\s+([\w\/\\]+)/);
-        
+
         if (!match) {
             return null;
         }
@@ -53,7 +52,7 @@ export class TemplateDefinitionProvider implements vscode.DefinitionProvider {
         }
 
         const workspaceRoot = workspaceFolder.uri.fsPath;
-        
+
         // Convert namespace path to file path
         // Example: SilverStripe/Blog/Pagination -> SilverStripe/Blog/Pagination.ss
         const possiblePaths = [
@@ -82,7 +81,7 @@ export class TemplateDefinitionProvider implements vscode.DefinitionProvider {
     private searchVendorTemplates(workspaceRoot: string, templateName: string): string[] {
         const paths: string[] = [];
         const vendorPath = path.join(workspaceRoot, 'vendor');
-        
+
         if (!fs.existsSync(vendorPath)) {
             return paths;
         }
