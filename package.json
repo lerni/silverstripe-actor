@@ -4,6 +4,11 @@
   "description": "Silverstripe template language support with PHPActor integration",
   "version": "0.1.0",
   "publisher": "lerni",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lerni/silverstripe-actor"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -17,9 +22,6 @@
     "phpactor"
   ],
   "main": "./dist/extension.js",
-  "activationEvents": [
-    "onLanguage:Silverstripe"
-  ],
   "contributes": {
     "languages": [
       {
@@ -67,15 +69,13 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "package": "vsce package",
-    "lint": "eslint src --ext ts"
+    "lint": "biome check src/"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.0.0",
     "@types/node": "^20.x",
     "@types/vscode": "^1.85.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
     "@vscode/vsce": "^2.22.0",
-    "eslint": "^8.50.0",
     "typescript": "^5.3.0"
   }
 }

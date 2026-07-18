@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
+import * as fs from "node:fs";
+import * as path from "node:path";
+import type * as vscode from "vscode";
 
 /**
  * Maps a Silverstripe .ss template file to its corresponding PHP class FQN.
@@ -13,7 +13,6 @@ import * as fs from 'fs';
  *   templates/App/Includes/Header.ss            → null (includes don't map to a class)
  */
 export class TemplateClassMapper {
-
     /** Cached PSR-4 namespace→directory mappings from Composer */
     private psr4Map: Map<string, string[]> | null = null;
     private psr4LoadedFor: string | null = null;
@@ -34,31 +33,36 @@ export class TemplateClassMapper {
         let relativePath = path.relative(templatesDir, templatePath);
 
         // Normalise separators
-        relativePath = relativePath.replace(/\\/g, '/');
+        relativePath = relativePath.replace(/\\/g, "/");
 
         // Remove .ss extension
-        relativePath = relativePath.replace(/\.ss$/, '');
+        relativePath = relativePath.replace(/\.ss$/, "");
 
         // Skip Includes — they don't map to a class
-        if (relativePath.includes('/Includes/') || relativePath.startsWith('Includes/')) {
+        if (
+            relativePath.includes("/Includes/") ||
+            relativePath.startsWith("Includes/")
+        ) {
             return null;
         }
 
         // Strip Layout/ sub-directory (it's a template type, not namespace)
         // e.g. "App/Models/Layout/ElementPage" → "App/Models/ElementPage"
         // e.g. "Layout/Page" → "Page"
-        relativePath = relativePath.replace(/\/?Layout\//, '/').replace(/^\//, '');
+        relativePath = relativePath
+            .replace(/\/?Layout\//, "/")
+            .replace(/^\//, "");
 
         // Strip _suffix (e.g. ElementPage_produkt → ElementPage)
-        const parts = relativePath.split('/');
+        const parts = relativePath.split("/");
         const lastPart = parts[parts.length - 1];
-        if (lastPart.includes('_')) {
-            parts[parts.length - 1] = lastPart.split('_')[0];
-            relativePath = parts.join('/');
+        if (lastPart.includes("_")) {
+            parts[parts.length - 1] = lastPart.split("_")[0];
+            relativePath = parts.join("/");
         }
 
         // Convert path separators to namespace separators
-        const fqn = relativePath.replace(/\//g, '\\');
+        const fqn = relativePath.replace(/\//g, "\\");
 
         return fqn || null;
     }
@@ -69,7 +73,7 @@ export class TemplateClassMapper {
     private findTemplatesRoot(filePath: string): string | null {
         const parts = filePath.split(path.sep);
         for (let i = parts.length - 1; i >= 0; i--) {
-            if (parts[i] === 'templates') {
+            if (parts[i] === "templates") {
                 return parts.slice(0, i + 1).join(path.sep);
             }
         }
@@ -81,7 +85,7 @@ export class TemplateClassMapper {
      * Uses Composer's PSR-4 autoload map for accurate resolution of any class.
      */
     public findClassFile(fqn: string, workspaceRoot: string): string | null {
-        const namespaceParts = fqn.split('\\');
+        const namespaceParts = fqn.split("\\");
 
         // Strategy 1: Use Composer's PSR-4 map (most accurate, covers vendor too)
         const psr4Result = this.findViaPsr4(fqn, workspaceRoot);
@@ -91,13 +95,19 @@ export class TemplateClassMapper {
 
         // Strategy 2: Direct convention (App\ → app/src/, root → app/src/)
         const candidates = [];
-        if (namespaceParts[0] === 'App') {
-            candidates.push(path.join(workspaceRoot, 'app', 'src', ...namespaceParts.slice(1)) + '.php');
+        if (namespaceParts[0] === "App") {
+            candidates.push(
+                `${path.join(workspaceRoot, "app", "src", ...namespaceParts.slice(1))}.php`,
+            );
         }
-        candidates.push(path.join(workspaceRoot, 'app', 'src', ...namespaceParts) + '.php');
+        candidates.push(
+            `${path.join(workspaceRoot, "app", "src", ...namespaceParts)}.php`,
+        );
         // Root-level class (no namespace, like Page)
         if (namespaceParts.length === 1) {
-            candidates.push(path.join(workspaceRoot, 'app', 'src', namespaceParts[0]) + '.php');
+            candidates.push(
+                `${path.join(workspaceRoot, "app", "src", namespaceParts[0])}.php`,
+            );
         }
 
         for (const candidate of candidates) {
@@ -123,16 +133,16 @@ export class TemplateClassMapper {
         // e.g. for "App\Elements\ElementHero":
         //   "App\Elements\" → no match
         //   "App\" → match → dir + "Elements/ElementHero.php"
-        const fqnParts = fqn.split('\\');
+        const fqnParts = fqn.split("\\");
 
         for (let prefixLen = fqnParts.length - 1; prefixLen >= 1; prefixLen--) {
-            const prefix = fqnParts.slice(0, prefixLen).join('\\') + '\\';
+            const prefix = `${fqnParts.slice(0, prefixLen).join("\\")}\\`;
             const dirs = this.psr4Map.get(prefix);
             if (!dirs) {
                 continue;
             }
 
-            const relativePath = fqnParts.slice(prefixLen).join(path.sep) + '.php';
+            const relativePath = `${fqnParts.slice(prefixLen).join(path.sep)}.php`;
             for (const dir of dirs) {
                 const fullPath = path.join(dir, relativePath);
                 if (fs.existsSync(fullPath)) {
@@ -156,36 +166,40 @@ export class TemplateClassMapper {
         this.psr4Map = new Map();
         this.psr4LoadedFor = workspaceRoot;
 
-        const psr4File = path.join(workspaceRoot, 'vendor', 'composer', 'autoload_psr4.php');
+        const psr4File = path.join(
+            workspaceRoot,
+            "vendor",
+            "composer",
+            "autoload_psr4.php",
+        );
         if (!fs.existsSync(psr4File)) {
             return;
         }
 
         try {
-            const content = fs.readFileSync(psr4File, 'utf-8');
+            const content = fs.readFileSync(psr4File, "utf-8");
 
             // Parse PHP array entries:
             // 'App\\' => array($baseDir . '/app/src'),
             // 'SilverStripe\\CMS\\' => array($vendorDir . '/silverstripe/cms/src'),
             const entryRegex = /'([^']+)'\s*=>\s*array\(([^)]+)\)/g;
-            let match;
 
-            while ((match = entryRegex.exec(content)) !== null) {
+            for (const match of content.matchAll(entryRegex)) {
                 // PHP uses double backslashes in strings, normalize to single
-                const namespace = match[1].replace(/\\\\/g, '\\');
+                const namespace = match[1].replace(/\\\\/g, "\\");
                 const pathsStr = match[2];
 
                 // Parse path entries: $baseDir . '/app/src' or $vendorDir . '/silverstripe/cms/src'
                 const pathRegex = /\$(baseDir|vendorDir)\s*\.\s*'([^']+)'/g;
                 const dirs: string[] = [];
-                let pathMatch;
 
-                while ((pathMatch = pathRegex.exec(pathsStr)) !== null) {
+                for (const pathMatch of pathsStr.matchAll(pathRegex)) {
                     const varName = pathMatch[1];
                     const relPath = pathMatch[2];
-                    const base = varName === 'vendorDir'
-                        ? path.join(workspaceRoot, 'vendor')
-                        : workspaceRoot;
+                    const base =
+                        varName === "vendorDir"
+                            ? path.join(workspaceRoot, "vendor")
+                            : workspaceRoot;
                     dirs.push(path.join(base, relPath));
                 }
 

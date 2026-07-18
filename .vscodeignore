@@ -1,10 +1,17 @@
-.vscode/**
+# Mirrors the package-irrelevant entries from .gitignore.
+node_modules/**
+*.vsix
 .vscode-test/**
+todo.md
+
+# Development-only files that should not ship in the VSIX.
+.vscode/**
 src/**
-.gitignore
-.eslintrc.json
 **/*.map
 **/*.ts
 tsconfig.json
-node_modules/**
+biome.json
+.gitignore
 .editorconfig
+01_Syntax.md
+_manifest_exclude
