@@ -110,6 +110,8 @@ Or via command line:
 code --install-extension silverstripe-actor-0.1.0.vsix
 ```
 
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for how releases to the Marketplace are published.
+
 ## Architecture
 
 ### How it works
