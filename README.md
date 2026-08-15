@@ -19,44 +19,35 @@ VSCode extension providing intelligent Silverstripe template (`.ss`) language su
 
 This extension is designed to work within DDEV devcontainer environments.
 
-### Setup in Your Project
+### Installation
 
-1. **Clone into your project:**
-   ```bash
-   cd /var/www/html
-   git clone https://github.com/lerni/silverstripe-actor.git
-   ```
+Install from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=lerni.silverstripe-actor):
 
-2. **Add to `.devcontainer/devcontainer.json`:**
-   ```jsonc
-   {
-     "postCreateCommand": "cd /var/www/html/ss-vscode-actor && npm install && npm run compile",
-     "customizations": {
-       "vscode": {
-         "extensions": [
-           // ... other extensions
-         ]
-       }
-     }
-   }
-   ```
+```bash
+code --install-extension lerni.silverstripe-actor
+```
 
-3. **Reload devcontainer:**
-   - Press `Cmd/Ctrl + Shift + P`
-   - Select "Dev Containers: Rebuild Container"
+Or search for "Silverstripe Language Support" in the VS Code Extensions view.
 
-4. **Open a workspace that includes both:**
-   Create a multi-root workspace file (e.g., `myproject.code-workspace`):
-   ```json
-   {
-     "folders": [
-       { "path": "." },
-       { "path": "ss-vscode-actor", "name": "SS Extension" }
-     ]
-   }
-   ```
+### Add to a Devcontainer
 
-5. **Press F5** when `ss-vscode-actor` folder is active to launch Extension Development Host
+Add the extension ID to `.devcontainer/devcontainer.json` so it's installed automatically:
+```jsonc
+{
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "lerni.silverstripe-actor"
+        // ... other extensions
+      ]
+    }
+  }
+}
+```
+
+Then rebuild the devcontainer (`Cmd/Ctrl + Shift + P` → "Dev Containers: Rebuild Container").
+
+Building from source is only needed if you want to contribute to the extension itself — see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Development
 
