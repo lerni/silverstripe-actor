@@ -22,6 +22,10 @@
     "phpactor"
   ],
   "main": "./dist/extension.js",
+  "activationEvents": [
+    "onLanguage:silverstripe",
+    "onStartupFinished"
+  ],
   "contributes": {
     "languages": [
       {

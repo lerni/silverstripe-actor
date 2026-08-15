@@ -3,6 +3,8 @@ import { PhpClassInspector } from "./providers/phpClassInspector";
 import { TemplateClassMapper } from "./providers/templateClassMapper";
 import { TemplateCompletionProvider } from "./providers/templateCompletionProvider";
 import { TemplateDefinitionProvider } from "./providers/templateDefinitionProvider";
+import { TranslationCompletionProvider } from "./providers/translationCompletionProvider";
+import { TranslationKeyProvider } from "./providers/translationKeyProvider";
 import { VariableCompletionProvider } from "./providers/variableCompletionProvider";
 
 export function activate(context: vscode.ExtensionContext) {
@@ -11,6 +13,16 @@ export function activate(context: vscode.ExtensionContext) {
     // Shared instances for class mapping and inspection
     const mapper = new TemplateClassMapper();
     const inspector = new PhpClassInspector();
+
+    // Shared translation key provider — pre-warmed async so first <%t completion
+    // is instant instead of blocking while PHP boots Silverstripe's CoreKernel.
+    const translationKeyProvider = new TranslationKeyProvider();
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    if (workspaceFolder) {
+        translationKeyProvider.preWarm(workspaceFolder.uri.fsPath).catch(() => {
+            // Silently ignore warmup errors; getKeys() will retry on first use
+        });
+    }
 
     // Register definition provider for template includes
     context.subscriptions.push(
@@ -28,6 +40,17 @@ export function activate(context: vscode.ExtensionContext) {
             " ",
             '"',
             "'",
+        ),
+    );
+
+    // Register completion provider for <%t translation keys
+    context.subscriptions.push(
+        vscode.languages.registerCompletionItemProvider(
+            selector,
+            new TranslationCompletionProvider(translationKeyProvider),
+            " ", // space after <%t  — shows full list immediately
+            "\\", // backslash — namespace separator
+            ".", // dot — class.KEY separator
         ),
     );
 
