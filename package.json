@@ -2,7 +2,7 @@
   "name": "silverstripe-actor",
   "displayName": "Silverstripe Language Support",
   "description": "Silverstripe template language support with PHPActor integration",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "lerni",
   "license": "MIT",
   "repository": {

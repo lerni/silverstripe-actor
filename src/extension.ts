@@ -3,6 +3,8 @@ import { PhpClassInspector } from "./providers/phpClassInspector";
 import { TemplateClassMapper } from "./providers/templateClassMapper";
 import { TemplateCompletionProvider } from "./providers/templateCompletionProvider";
 import { TemplateDefinitionProvider } from "./providers/templateDefinitionProvider";
+import { TemplateDiagnosticsProvider } from "./providers/templateDiagnosticsProvider";
+import { TemplateKeywordCompletionProvider } from "./providers/templateKeywordCompletionProvider";
 import { TranslationCompletionProvider } from "./providers/translationCompletionProvider";
 import { TranslationKeyProvider } from "./providers/translationKeyProvider";
 import { VariableCompletionProvider } from "./providers/variableCompletionProvider";
@@ -29,6 +31,15 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.languages.registerDefinitionProvider(
             selector,
             new TemplateDefinitionProvider(),
+        ),
+    );
+
+    // Register completion provider for control-tag keywords (if, loop, include, ...)
+    context.subscriptions.push(
+        vscode.languages.registerCompletionItemProvider(
+            selector,
+            new TemplateKeywordCompletionProvider(),
+            "%",
         ),
     );
 
@@ -63,6 +74,9 @@ export function activate(context: vscode.ExtensionContext) {
             ".",
         ),
     );
+
+    // Diagnostics: unclosed/mismatched block tags, missing $ prefixes, unresolved includes
+    new TemplateDiagnosticsProvider().register(context);
 
     // Status bar item showing mapped class
     const statusBar = vscode.window.createStatusBarItem(

@@ -153,7 +153,7 @@ export class TemplateDefinitionProvider implements vscode.DefinitionProvider {
     /**
      * Find template file in theme directories
      */
-    private findTemplate(
+    public findTemplate(
         templateName: string,
         currentUri: vscode.Uri,
     ): string | null {

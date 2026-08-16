@@ -36,13 +36,22 @@ export class TemplateCompletionProvider
 
         const templates = this.findAllTemplates(workspaceFolder.uri.fsPath);
 
+        // Without a trailing space, accepting a suggestion right before "%>"
+        // produces "TemplateName%>" instead of "TemplateName %>".
+        const lineSuffix = document
+            .lineAt(position)
+            .text.slice(position.character);
+        const needsTrailingSpace = /^%>/.test(lineSuffix);
+
         return templates.map((template) => {
             const item = new vscode.CompletionItem(
                 template.name,
                 vscode.CompletionItemKind.File,
             );
             item.detail = template.path;
-            item.insertText = template.name;
+            item.insertText = needsTrailingSpace
+                ? `${template.name} `
+                : template.name;
             return item;
         });
     }

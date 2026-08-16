@@ -1,19 +1,22 @@
 # Silverstripe Language Support
 
-VSCode extension providing intelligent Silverstripe template (`.ss`) language support with PHPActor integration. There are lots of emojis and as you may have guessed, I didn't care about the code too much. It's an experiment to integrate PHPActor, Annotations & Cache into a VSCode plugin.
+VSCode extension providing intelligent Silverstripe template (`.ss`) language support with PHPActor integration. Judging by the number of emojis, you've probably guessed it - this is a vibe-coded project. It's an experiment to integrate PHPActor, annotations & caching into a VSCode plugin.
 
 ## Features
 
 - ✅ **Syntax Highlighting**: Rich syntax highlighting for `.ss` template files, including embedded JS and CSS
 - ✅ **Emmet Support**: Full Emmet abbreviation expansion inside `.ss` files
 - ✅ **Go to Definition**: Navigate from `<% include MyTemplate %>` to the template file
+- ✅ **Control-Tag Keyword Completion**: Suggests `if`, `loop`, `with`, `include`, `end_if`, etc. right after typing `<%`
 - ✅ **Template Autocomplete**: Suggests available templates when typing `<% include %>`
 - ✅ **Variable Completion**: `$Title`, `$Content`, etc. — sourced from `$db`, `$has_one`, `$has_many`, `@property` docblocks, and PHPActor methods
+- ✅ **`<%t ... %>` Translation Keys**: Completion for existing i18n translation keys
 - ✅ **Dot-chain Completion**: `$Image.Fill(300,200).` resolves the return type and offers its members
 - ✅ **Loop/With Scope Tracking**: Completions reflect the correct class inside `<% loop %>` and `<% with %>` blocks
 - ✅ **`$Up` / `$Top` Navigation**: Scope traversal completions across nested loops
 - ✅ **PHPActor Integration**: Queries `phpactor class:reflect` for inherited and annotated methods
 - ✅ **Status Bar**: Shows the mapped PHP class (FQN) for the active template file
+- ✅ **Diagnostics**: Flags unclosed/mismatched block tags (`if`/`loop`/`with`/`cached`/`uncached`), variables missing their `$` prefix in `<% if %>`/`<% else_if %>` conditions, and unresolved `<% include %>` targets
 
 ## For DDEV + Devcontainer Projects
 
@@ -86,19 +89,19 @@ The `preLaunchTask` will automatically compile before debugging.
 ```bash
 npx vsce package
 ```
-Creates: `silverstripe-actor-0.1.0.vsix`
+Creates a `.vsix` matching the version in `package.json` (e.g. `silverstripe-actor-0.1.1.vsix`)
 
 #### Install Packaged Extension
 
 In VS Code:
 1. Press `Cmd/Ctrl + Shift + P`
 2. Type "Extensions: Install from VSIX"
-3. Select `silverstripe-actor-0.1.0.vsix`
+3. Select the generated `.vsix` file
 4. Reload VS Code when prompted
 
 Or via command line:
 ```bash
-code --install-extension silverstripe-actor-0.1.0.vsix
+code --install-extension silverstripe-actor-0.1.1.vsix
 ```
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for how releases to the Marketplace are published.
@@ -128,11 +131,16 @@ ss-vscode-actor/
 ├── src/
 │   ├── extension.ts                         # Entry point, registers all providers
 │   └── providers/
-│       ├── templateDefinitionProvider.ts    # Go-to-definition for <% include %>
+│       ├── templateDefinitionProvider.ts    # Go-to-definition for <% include %> and vite assets
 │       ├── templateCompletionProvider.ts    # Autocomplete for template paths
+│       ├── templateKeywordCompletionProvider.ts # Keyword completion right after <%
+│       ├── templateDiagnosticsProvider.ts   # Unclosed blocks, missing $, unresolved includes
 │       ├── templateClassMapper.ts           # Maps .ss file → PHP class FQN
 │       ├── phpClassInspector.ts             # Reads PHP source + queries PHPActor
-│       └── variableCompletionProvider.ts    # $Variable and dot-chain completions
+│       ├── variableCompletionProvider.ts    # $Variable and dot-chain completions
+│       ├── translationCompletionProvider.ts # <%t ... %> translation key completion
+│       ├── translationKeyProvider.ts        # Loads/caches available translation keys
+│       └── moduleDiscovery.ts               # Finds vendor/local modules with templates/
 ├── syntaxes/
 │   ├── silverstripe.tmLanguage.json         # Main grammar
 │   └── silverstripe-injection.tmLanguage.json
@@ -147,6 +155,7 @@ ss-vscode-actor/
 ### Known limitations / still to do
 - PSR-4 cache is not invalidated when `composer install`/`update` runs (requires reload)
 - Signature help for methods not yet implemented
+- The missing-`$`-prefix diagnostic is a regex heuristic, not a real parser — it can misfire on unusual conditions (e.g. helper calls with bare-word arguments)
 
 ## Customizing Syntax Highlighting
 
