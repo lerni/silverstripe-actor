@@ -18,6 +18,10 @@ VSCode extension providing intelligent Silverstripe template (`.ss`) language su
 - ✅ **Status Bar**: Shows the mapped PHP class (FQN) for the active template file
 - ✅ **Diagnostics**: Flags unclosed/mismatched block tags (`if`/`loop`/`with`/`cached`/`uncached`), variables missing their `$` prefix in `<% if %>`/`<% else_if %>` conditions, and unresolved `<% include %>` targets
 
+
+
+[![Silverstripe Language Support demo](assets/ss-actor.jpg)](https://github.com/lerni/silverstripe-actor/raw/main/assets/ss-actor.mp4)
+
 ## For DDEV + Devcontainer Projects
 
 This extension is designed to work within DDEV devcontainer environments.
